@@ -2,15 +2,35 @@ import Section from './Section/Section';
 import ContactForm from './ContactForm/ContactForm';
 import ContactsSearch from './ContactsSearch';
 import ContactsList from './ContactsList';
-import contactsJson from '../assets/contacts.json';
+// import contactsJson from '../assets/contacts.json';
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 
 export class App extends Component {
   state = {
-    contacts: contactsJson,
+    contacts: [],
     filter: '',
   };
+
+  componentDidMount() {
+    const savedContacts = localStorage.getItem('contacts');
+    if (savedContacts) {
+      try {
+        const parsedContacts = JSON.parse(savedContacts);
+        this.setState({ contacts: parsedContacts });
+      } catch (error) {
+        console.error('Failed to parse contacts from localStorage:', error);
+        this.setState({ contacts: [] });
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts.length !== this.state.contacts.length) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
+
   handleAddContact = newContact => {
     if (
       this.state.contacts.some(
